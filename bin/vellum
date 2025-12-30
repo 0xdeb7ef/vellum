@@ -97,8 +97,8 @@ update_local_index() {
 get_device_type() {
     MACHINE=$(cat /sys/devices/soc0/machine 2>/dev/null || echo "unknown")
     case "$MACHINE" in
-        *ferrari*) echo "rmpp" ;;
-        *chiappa*) echo "rmppm" ;;
+        *Ferrari*) echo "rmpp" ;;
+        *Chiappa*) echo "rmppm" ;;
         *) echo "rm2" ;;
     esac
 }

@@ -43,7 +43,19 @@ EOF
 
 echo "Initializing local repository..."
 mkdir -p "$VELLUM_ROOT/local-repo/$APK_ARCH"
-(cd "$VELLUM_ROOT/local-repo/$APK_ARCH" && touch APKINDEX && tar -czf APKINDEX.tar.gz APKINDEX && rm APKINDEX)
+LOCAL_KEY="$VELLUM_ROOT/etc/apk/keys/local.rsa"
+(
+    cd "$VELLUM_ROOT/local-repo/$APK_ARCH"
+    touch APKINDEX
+    tar -czf unsigned.tar.gz APKINDEX
+    openssl dgst -sha1 -sign "$LOCAL_KEY" -out ".SIGN.RSA.local.rsa.pub" unsigned.tar.gz
+    tar -cf sig.tar .SIGN.RSA.local.rsa.pub
+    SIG_SIZE=$(stat -c %s ".SIGN.RSA.local.rsa.pub" 2>/dev/null || stat -f %z ".SIGN.RSA.local.rsa.pub")
+    CONTENT_BLOCKS=$(( (512 + SIG_SIZE + 511) / 512 ))
+    dd if=sig.tar bs=512 count=$CONTENT_BLOCKS 2>/dev/null | gzip -n -9 > sig.tar.gz
+    cat sig.tar.gz unsigned.tar.gz > APKINDEX.tar.gz
+    rm -f APKINDEX unsigned.tar.gz sig.tar sig.tar.gz .SIGN.RSA.local.rsa.pub
+)
 
 echo "Initializing apk database..."
 "$VELLUM_ROOT/bin/apk.vellum" \
