@@ -7,10 +7,65 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      noarch: ${{ steps.generate-matrix.outputs.noarch }}
+      multiarch: ${{ steps.generate-matrix.outputs.multiarch }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate package matrix
+        id: generate-matrix
+        run: |
+          noarch_packages=$(for pkg in packages/*/APKBUILD; do
+            if grep -q '^arch="noarch"' "$pkg"; then
+              basename $(dirname "$pkg")
+            fi
+          done | jq -R -s -c 'split("\n") | map(select(length > 0))')
+
+          multiarch_packages=$(for pkg in packages/*/APKBUILD; do
+            if grep -qE '^arch="(aarch64|armv7|aarch64 armv7)"' "$pkg"; then
+              basename $(dirname "$pkg")
+            fi
+          done | jq -R -s -c 'split("\n") | map(select(length > 0))')
+
+          echo "noarch=$noarch_packages" >> $GITHUB_OUTPUT
+          echo "multiarch=$multiarch_packages" >> $GITHUB_OUTPUT
+
+  build-noarch:
+    needs: setup
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        package: ${{ fromJson(needs.setup.outputs.noarch) }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up signing key
+        run: |
+          if [ -n "${{ secrets.SIGNING_KEY }}" ]; then
+            echo "${{ secrets.SIGNING_KEY }}" > keys/packages.rsa
+            chmod 600 keys/packages.rsa
+          fi
+
+      - name: Build ${{ matrix.package }}
+        run: ./scripts/build-package.sh "${{ matrix.package }}" aarch64
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-noarch-${{ matrix.package }}
+          path: dist/
+          if-no-files-found: warn
+
+  build-multi-arch:
+    needs: setup
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: ${{ fromJson(needs.setup.outputs.multiarch) }}
         arch: [aarch64, armv7]
 
     steps:
@@ -23,38 +78,18 @@ jobs:
             chmod 600 keys/packages.rsa
           fi
 
-      - name: Build packages for ${{ matrix.arch }}
-        run: |
-          for pkg in packages/*/; do
-            pkgname=$(basename "$pkg")
-            echo "=== Building $pkgname for ${{ matrix.arch }} ==="
-
-            # Check if package supports this architecture
-            ARCH_LINE=$(grep '^arch=' "$pkg/APKBUILD" || echo 'arch="all"')
-            if echo "$ARCH_LINE" | grep -q 'noarch'; then
-              if [ "${{ matrix.arch }}" = "armv7" ]; then
-                echo "Skipping $pkgname (noarch, only build once)"
-                continue
-              fi
-            fi
-
-            ./scripts/build-package.sh "$pkgname" "${{ matrix.arch }}"
-          done
-
-      - name: List built packages
-        run: |
-          find dist -type f -name "*.apk" 2>/dev/null || echo "No .apk files found"
-          ls -laR dist/ 2>/dev/null || true
+      - name: Build ${{ matrix.package }} for ${{ matrix.arch }}
+        run: ./scripts/build-package.sh "${{ matrix.package }}" "${{ matrix.arch }}"
 
       - name: Upload packages
         uses: actions/upload-artifact@v4
         with:
-          name: packages-${{ matrix.arch }}
+          name: packages-${{ matrix.package }}-${{ matrix.arch }}
           path: dist/
           if-no-files-found: warn
 
   index:
-    needs: build
+    needs: [build-noarch, build-multi-arch]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
