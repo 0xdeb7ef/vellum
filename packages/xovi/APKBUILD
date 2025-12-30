@@ -59,6 +59,7 @@ package() {
 qt_resource_rebuilder() {
     pkgdesc="Rebuilds QT resource databases on the fly to replace or add QML files, images, etc"
     depends="xovi"
+    install="$subpkgname.post-install"
 
     install -Dm755 "$srcdir/qt-resource-rebuilder.so" \
         "$subpkgdir/home/root/xovi/extensions.d/qt-resource-rebuilder.so"
