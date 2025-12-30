@@ -67,6 +67,14 @@ echo "Initializing apk database..."
 echo "Updating package index..."
 "$VELLUM_ROOT/bin/vellum" update
 
+echo "Registering vellum package..."
+"$VELLUM_ROOT/bin/apk.vellum" \
+    --root "$VELLUM_ROOT" \
+    --dest / \
+    --force-no-chroot \
+    --no-logfile \
+    add vellum 2>/dev/null || true
+
 echo "Installing bash completion..."
 "$VELLUM_ROOT/bin/vellum" add vellum-bash-completion
 

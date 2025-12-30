@@ -1,11 +1,12 @@
 # Maintainer: Mitchell Scott <mitchell@scottlabs.io>
 pkgname=vellum-bash-completion
 pkgver=3.0.3
-pkgrel=0
+pkgrel=1
 pkgdesc="Bash completion for vellum package manager"
 url="https://gitlab.alpinelinux.org/alpine/apk-tools"
 arch="noarch"
 license="GPL-2.0-only"
+depends="vellum"
 source="
 https://dl-cdn.alpinelinux.org/alpine/edge/main/x86_64/apk-tools-bash-completion-$pkgver-r1.apk
 "
@@ -22,9 +23,37 @@ unpack() {
 package() {
     sed -e 's/__apk_/__vellum_/g' \
         -e 's/apk query/vellum query/g' \
-        -e 's/_comp_cmd_apk/_comp_cmd_vellum/g' \
-        -e 's/complete -F _comp_cmd_vellum apk$/complete -F _comp_cmd_vellum vellum/' \
+        -e 's/_comp_cmd_apk/_comp_cmd_vellum_apk/g' \
+        -e 's/complete -F _comp_cmd_vellum_apk apk$//' \
         "$srcdir/usr/share/bash-completion/completions/_apk" > "$srcdir/vellum"
+
+    cat >> "$srcdir/vellum" << 'EOF'
+
+_comp_cmd_vellum() {
+    local cur="${COMP_WORDS[COMP_CWORD]}"
+
+    if [[ "${COMP_WORDS[1]}" == "self" ]]; then
+        case "${COMP_WORDS[2]:-}" in
+            uninstall)
+                COMPREPLY=($(compgen -W "--all --yes" -- "$cur"))
+                ;;
+            *)
+                COMPREPLY=($(compgen -W "uninstall" -- "$cur"))
+                ;;
+        esac
+        return
+    fi
+
+    if [[ $COMP_CWORD -eq 1 ]]; then
+        _comp_cmd_vellum_apk
+        COMPREPLY+=($(compgen -W "self install remove purge show" -- "$cur"))
+    else
+        _comp_cmd_vellum_apk
+    fi
+}
+
+complete -F _comp_cmd_vellum vellum
+EOF
 
     install -Dm644 "$srcdir/vellum" \
         "$pkgdir/home/root/.vellum/share/bash-completion/completions/vellum"

@@ -190,6 +190,87 @@ ensure_device_package
 
 export APK_CONFIG="$VELLUM_ROOT/etc/apk/config"
 
+case "$1" in
+    install)
+        shift
+        set -- add "$@"
+        ;;
+    remove)
+        shift
+        set -- del "$@"
+        ;;
+    purge)
+        shift
+        set -- del --purge "$@"
+        ;;
+    show)
+        shift
+        set -- info -a "$@"
+        ;;
+    self)
+        case "$2" in
+            uninstall)
+                shift 2
+                UNINSTALL_ALL=false
+                UNINSTALL_YES=false
+                for arg in "$@"; do
+                    case "$arg" in
+                        --all) UNINSTALL_ALL=true ;;
+                        --yes|-y) UNINSTALL_YES=true ;;
+                    esac
+                done
+
+                if [ "$UNINSTALL_YES" = false ]; then
+                    printf "This will remove vellum"
+                    [ "$UNINSTALL_ALL" = true ] && printf " and all installed packages"
+                    printf ". Continue? [y/N] "
+                    read -r confirm
+                    case "$confirm" in
+                        [yY]) ;;
+                        *) echo "Aborted."; exit 1 ;;
+                    esac
+                fi
+
+                if [ "$UNINSTALL_ALL" = true ]; then
+                    echo "Removing all installed packages..."
+                    "$VELLUM_ROOT/bin/apk.vellum" \
+                        --root "$VELLUM_ROOT" \
+                        --dest / \
+                        --force-no-chroot \
+                        --no-logfile \
+                        info -q 2>/dev/null | while read -r pkg; do
+                            "$VELLUM_ROOT/bin/apk.vellum" \
+                                --root "$VELLUM_ROOT" \
+                                --dest / \
+                                --force-no-chroot \
+                                --no-logfile \
+                                del "$pkg" 2>/dev/null || true
+                        done
+                fi
+                echo "Removing vellum..."
+                sed -i '/\.vellum/d' "$HOME/.bashrc" 2>/dev/null || true
+                rm -rf "$VELLUM_ROOT"
+                echo "Vellum has been removed."
+                exit 0
+                ;;
+            *)
+                echo "Unknown self command: $2"
+                echo "Usage: vellum self uninstall [--all] [--yes]"
+                exit 1
+                ;;
+        esac
+        ;;
+    del|add)
+        for arg in "$@"; do
+            if [ "$arg" = "vellum" ]; then
+                echo "Error: Cannot add/remove vellum package directly."
+                echo "Use 'vellum self uninstall' to remove vellum."
+                exit 1
+            fi
+        done
+        ;;
+esac
+
 exec "$VELLUM_ROOT/bin/apk.vellum" \
     --root "$VELLUM_ROOT" \
     --dest / \

@@ -35,8 +35,13 @@ jobs:
             echo "Rebuild all requested - building all packages"
             echo "packages=all" >> $GITHUB_OUTPUT
           elif [ "${{ github.event_name }}" == "push" ]; then
-            CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} 2>/dev/null | \
-              grep '^packages/' | cut -d/ -f2 | sort -u || echo "")
+            BEFORE="${{ github.event.before }}"
+            if ! git cat-file -e "$BEFORE" 2>/dev/null; then
+              echo "Before commit not accessible (likely force-push), using HEAD~1"
+              BEFORE="HEAD~1"
+            fi
+            CHANGED=$(git diff --name-only "$BEFORE" ${{ github.sha }} | \
+              grep '^packages/' | cut -d/ -f2 | sort -u | tr '\n' ' ' || echo "")
             if [ -z "$CHANGED" ]; then
               echo "No package changes detected"
               echo "packages=" >> $GITHUB_OUTPUT
@@ -46,7 +51,7 @@ jobs:
             fi
           elif [ "${{ github.event_name }}" == "pull_request" ]; then
             CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | \
-              grep '^packages/' | cut -d/ -f2 | sort -u || echo "")
+              grep '^packages/' | cut -d/ -f2 | sort -u | tr '\n' ' ' || echo "")
             if [ -z "$CHANGED" ]; then
               echo "No package changes detected"
               echo "packages=" >> $GITHUB_OUTPUT
