@@ -8,16 +8,15 @@ pkgdesc="Overrides new page creation to use Paper Pro dimensions."
 url="https://github.com/rmitchellscott/xovi-qmd-extensions"
 arch="noarch"
 license="MIT"
-depends="xovi-qt-resource-rebuilder remarkable-os>=3.24"
-conflicts="createpages-rm2"
+depends="xovi-qt-resource-rebuilder remarkable-os>=3.24 !createpages-rm2"
 source="
-https://raw.githubusercontent.com/rmitchellscott/xovi-qmd-extensions/main/3.24/createPagesPaperProSize.qmd
-https://raw.githubusercontent.com/rmitchellscott/xovi-qmd-extensions/main/LICENSE
+createPagesPaperProSize.qmd::https://raw.githubusercontent.com/rmitchellscott/xovi-qmd-extensions/main/3.24/createPagesPaperProSize.qmd
+LICENSE::https://raw.githubusercontent.com/rmitchellscott/xovi-qmd-extensions/main/LICENSE
 "
 options="!check !fhs"
 sha512sums="
-b0a19851ac8525e334be80258a520c07fe5aaa7e4e38bd2f85faf4dad1169dcc45d84ccc62ac44948e7bb1cf40a564f27ff118a2b51de85e0750480e7d0db599
-SKIP
+b0a19851ac8525e334be80258a520c07fe5aaa7e4e38bd2f85faf4dad1169dcc45d84ccc62ac44948e7bb1cf40a564f27ff118a2b51de85e0750480e7d0db599  createPagesPaperProSize.qmd
+b7a86c9fc7a740ff680037b0e6b646ccd70e4e74fef78669b8ba92e18b873e4673fbba064272c595d13bc016288cd4a0532cd974534b7fef43a5b065f24add95  LICENSE
 "
 
 package() {

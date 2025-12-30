@@ -1,6 +1,6 @@
 # Maintainer: Mitchell Scott <mitchell@scottlabs.io>
 pkgname=rmhacks
-pkgver=0.0.11pre2
+pkgver=0.0.11_pre2
 pkgrel=0
 _commit=a5a921cda5b0db3fa9a93fd016187a8928abfe9b
 _author="asivery"
@@ -12,10 +12,10 @@ license="MIT"
 depends="xovi-qt-resource-rebuilder remarkable-os>=3.20 remarkable-os<3.22"
 options="!check !fhs"
 source="
-https://github.com/asivery/rm-hacks-qmd/archive/$_commit.tar.gz
+rm-hacks-qmd-$_commit.tar.gz::https://github.com/asivery/rm-hacks-qmd/archive/$_commit.tar.gz
 "
 sha512sums="
-d6973052554f3a452a1b2a64e51339804beef9212a779430c73faba6fd1a338376f0770ddd9f9c885bc56d10fba329d20b8763915799de7c599ee005b1767811
+d6973052554f3a452a1b2a64e51339804beef9212a779430c73faba6fd1a338376f0770ddd9f9c885bc56d10fba329d20b8763915799de7c599ee005b1767811  rm-hacks-qmd-a5a921cda5b0db3fa9a93fd016187a8928abfe9b.tar.gz
 "
 builddir="$srcdir/rm-hacks-qmd-$_commit/0.0.11-pre2"
 

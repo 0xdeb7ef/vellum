@@ -11,14 +11,14 @@ license="MIT"
 depends="xovi-framebuffer-spy xovi-message-broker"
 options="!check !fhs !strip !tracedeps"
 source="
-https://github.com/rmitchellscott/rm-shot/releases/download/v$pkgver/rm-shot-aarch64.so
-https://github.com/rmitchellscott/rm-shot/releases/download/v$pkgver/rm-shot-armv7.so
-https://raw.githubusercontent.com/rmitchellscott/rm-shot/main/LICENSE
+rm-shot-aarch64.so::https://github.com/rmitchellscott/rm-shot/releases/download/v$pkgver/rm-shot-aarch64.so
+rm-shot-armv7.so::https://github.com/rmitchellscott/rm-shot/releases/download/v$pkgver/rm-shot-armv7.so
+LICENSE::https://raw.githubusercontent.com/rmitchellscott/rm-shot/main/LICENSE
 "
 sha512sums="
-84983252a3beb590528246a9e84e6d4a3af3c698c8c7ba1b28048910e445e729f3d292799d3814cda9270e25d75449ab91b4aaf11e3d39f738ed63f4d411669d
-500875b8f377aa86024ca5ff910e12c277b9323a5cc8b2c2138b49bc23d35102fe6f8d314992371e0f4dab6450ca60b3ef399d9552807f7eb6a7a2fc37d104a7
-SKIP
+84983252a3beb590528246a9e84e6d4a3af3c698c8c7ba1b28048910e445e729f3d292799d3814cda9270e25d75449ab91b4aaf11e3d39f738ed63f4d411669d  rm-shot-aarch64.so
+500875b8f377aa86024ca5ff910e12c277b9323a5cc8b2c2138b49bc23d35102fe6f8d314992371e0f4dab6450ca60b3ef399d9552807f7eb6a7a2fc37d104a7  rm-shot-armv7.so
+b7a86c9fc7a740ff680037b0e6b646ccd70e4e74fef78669b8ba92e18b873e4673fbba064272c595d13bc016288cd4a0532cd974534b7fef43a5b065f24add95  LICENSE
 "
 
 package() {

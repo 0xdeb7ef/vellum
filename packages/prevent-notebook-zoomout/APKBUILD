@@ -4,19 +4,19 @@ pkgver=1.0.0
 pkgrel=0
 _author="rmitchellscott"
 _author_url="https://github.com/rmitchellscott"
-pkgdesc="Forces all notebook pages to start at 1x zoom with optional horizontal offset. Only affects notebooks, only affects portrait orientation."
+pkgdesc="Forces notebook pages to start at 1x zoom with optional horizontal offset in portrait mode"
 url="https://github.com/rmitchellscott/xovi-qmd-extensions"
 arch="noarch"
 license="MIT"
 depends="xovi-qt-resource-rebuilder remarkable-os>=3.24"
 source="
-https://raw.githubusercontent.com/rmitchellscott/xovi-qmd-extensions/main/3.24/preventNotebookZoomOut.qmd
-https://raw.githubusercontent.com/rmitchellscott/xovi-qmd-extensions/main/LICENSE
+preventNotebookZoomOut.qmd::https://raw.githubusercontent.com/rmitchellscott/xovi-qmd-extensions/main/3.24/preventNotebookZoomOut.qmd
+LICENSE::https://raw.githubusercontent.com/rmitchellscott/xovi-qmd-extensions/main/LICENSE
 "
 options="!check !fhs"
 sha512sums="
-a00501646d0c65b3bc6d37d8021252df523f5b61d48ed177fab91b8222c82ba213cd475dbc9bde262f1259369579a5a9e4f8b55adc2f8b701f5874d0e14b1327
-SKIP
+a00501646d0c65b3bc6d37d8021252df523f5b61d48ed177fab91b8222c82ba213cd475dbc9bde262f1259369579a5a9e4f8b55adc2f8b701f5874d0e14b1327  preventNotebookZoomOut.qmd
+b7a86c9fc7a740ff680037b0e6b646ccd70e4e74fef78669b8ba92e18b873e4673fbba064272c595d13bc016288cd4a0532cd974534b7fef43a5b065f24add95  LICENSE
 "
 
 package() {
