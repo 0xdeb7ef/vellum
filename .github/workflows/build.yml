@@ -51,7 +51,7 @@ jobs:
           fi
 
       - name: Build ${{ matrix.package }}
-        run: ./scripts/build-package.sh "${{ matrix.package }}" aarch64
+        run: ./scripts/build-package.sh "${{ matrix.package }}"
 
       - name: Upload packages
         uses: actions/upload-artifact@v4
@@ -103,9 +103,10 @@ jobs:
       - name: Flatten package structure
         run: |
           mkdir -p dist/aarch64 dist/armv7
-          find dist -name "*.apk" -path "*/aarch64/*" -exec mv {} dist/aarch64/ \;
-          find dist -name "*.apk" -path "*/armv7/*" -exec mv {} dist/armv7/ \;
-          rm -rf dist/packages
+          find dist -name "*.apk" -path "*/noarch/*" -exec sh -c 'cp "$1" dist/aarch64/ && cp "$1" dist/armv7/' _ {} \;
+          find dist -name "*.apk" -path "*/aarch64/*" ! -path "dist/aarch64/*" -exec mv {} dist/aarch64/ \;
+          find dist -name "*.apk" -path "*/armv7/*" ! -path "dist/armv7/*" -exec mv {} dist/armv7/ \;
+          rm -rf dist/packages dist/noarch
 
       - name: Set up signing key
         run: |
@@ -128,7 +129,7 @@ jobs:
                 sh -c "
                   apk add --no-cache apk-tools abuild
                   cp /keys/packages.rsa.pub /etc/apk/keys/
-                  apk index -o APKINDEX.tar.gz *.apk
+                  apk index --rewrite-arch $arch -o APKINDEX.tar.gz *.apk
                   abuild-sign -k /keys/packages.rsa APKINDEX.tar.gz
                   chown $(id -u):$(id -g) APKINDEX.tar.gz
                 "

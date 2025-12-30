@@ -3,9 +3,15 @@ set -e
 
 VELLUM_ROOT="/home/root/.vellum"
 
-ensure_apk_mount() {
-    # Use overlayfs to make /usr/lib writable for apk database
-    # /lib is a symlink to usr/lib, so apk looks at /usr/lib/apk/db
+ensure_etc_apk_mount() {
+    if ! mountpoint -q /etc/apk 2>/dev/null; then
+        rm -rf /etc/apk
+        mkdir -p /etc/apk
+        mount --bind "$VELLUM_ROOT/etc/apk" /etc/apk
+    fi
+}
+
+ensure_lib_apk_mount() {
     if ! mountpoint -q /usr/lib 2>/dev/null; then
         mkdir -p "$VELLUM_ROOT/lib-overlay/upper" "$VELLUM_ROOT/lib-overlay/work"
         mount -t overlay overlay \
@@ -65,13 +71,9 @@ update_local_index() {
     for apk in "$REPO_DIR/"*.apk; do
         [ -f "$apk" ] || continue
 
-        # Extract .PKGINFO and convert to APKINDEX format
         PKGINFO=$(tar -xzf "$apk" -O .PKGINFO)
-
-        # Compute checksum (Q1 prefix = SHA1)
         CKSUM=$(openssl dgst -sha1 -binary "$apk" | openssl base64 | tr -d '\n')
 
-        # Convert PKGINFO format to APKINDEX format
         echo "C:Q1${CKSUM}" >> "$INDEX_DIR/APKINDEX"
         echo "$PKGINFO" | while IFS= read -r line; do
             key=$(echo "$line" | cut -d= -f1 | tr -d ' ')
@@ -95,22 +97,12 @@ update_local_index() {
     cd "$INDEX_DIR"
 
     if [ -f "$LOCAL_KEY" ]; then
-        # Create unsigned APKINDEX.tar.gz
         tar -czf unsigned.tar.gz APKINDEX
-        # Sign it
         openssl dgst -sha1 -sign "$LOCAL_KEY" -out ".SIGN.RSA.local.rsa.pub" unsigned.tar.gz
-        # Create signature tar (uncompressed, then find size before padding)
         tar -cf sig.tar .SIGN.RSA.local.rsa.pub
-        # Find actual content size (skip trailing zero blocks - each block is 512 bytes)
-        # Signature file is ~256 bytes, tar header is 512 bytes, so ~768 bytes of content
-        # Round up to nearest 512 and add one block = 1536 bytes typically
         SIG_SIZE=$(stat -c %s ".SIGN.RSA.local.rsa.pub" 2>/dev/null || stat -f %z ".SIGN.RSA.local.rsa.pub")
-        # tar header (512) + content rounded to 512
         CONTENT_BLOCKS=$(( (512 + SIG_SIZE + 511) / 512 ))
-        CONTENT_SIZE=$(( CONTENT_BLOCKS * 512 ))
-        # Truncate tar to remove trailing zeros and gzip
         dd if=sig.tar bs=512 count=$CONTENT_BLOCKS 2>/dev/null | gzip -n -9 > sig.tar.gz
-        # Concatenate
         cat sig.tar.gz unsigned.tar.gz > "$REPO_DIR/APKINDEX.tar.gz"
         rm -f unsigned.tar.gz sig.tar sig.tar.gz
     else
@@ -181,8 +173,7 @@ ensure_device_package() {
         echo "$DEVICE" > "$STATE_FILE"
 
         "$VELLUM_ROOT/bin/apk.static" \
-            --keys-dir "$VELLUM_ROOT/etc/apk/keys" \
-            --repositories-file "$VELLUM_ROOT/etc/apk/repositories" \
+            --cache-dir "$VELLUM_ROOT/cache" \
             --no-logfile \
             add "$DEVICE" >/dev/null 2>&1 || true
     fi
@@ -200,22 +191,20 @@ ensure_remarkable_os() {
         generate_remarkable_os_package "$CUR_VER"
         update_local_index
         echo "$CUR_VER" > "$VELLUM_ROOT/state/osver"
-        # Explicitly install to prevent auto-removal as orphan
+
         "$VELLUM_ROOT/bin/apk.static" \
-            --keys-dir "$VELLUM_ROOT/etc/apk/keys" \
-            --repositories-file "$VELLUM_ROOT/etc/apk/repositories" \
+            --cache-dir "$VELLUM_ROOT/cache" \
             --no-logfile \
             add remarkable-os >/dev/null 2>&1 || true
     fi
 }
 
-ensure_apk_mount
+ensure_etc_apk_mount
+ensure_lib_apk_mount
 ensure_remarkable_os
 ensure_device_package
 
 exec "$VELLUM_ROOT/bin/apk.static" \
-    --keys-dir "$VELLUM_ROOT/etc/apk/keys" \
-    --repositories-file "$VELLUM_ROOT/etc/apk/repositories" \
     --cache-dir "$VELLUM_ROOT/cache" \
     --no-logfile \
     "$@"

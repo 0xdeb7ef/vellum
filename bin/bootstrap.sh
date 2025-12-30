@@ -14,7 +14,7 @@ case "$ARCH" in
     *)       echo "Unsupported architecture: $ARCH"; exit 1 ;;
 esac
 
-mkdir -p "$VELLUM_ROOT"/{bin,etc/apk/keys,state,local-repo,cache,lib/apk/db}
+mkdir -p "$VELLUM_ROOT"/{bin,etc/apk/keys,state,local-repo,cache}
 
 echo "Downloading apk.static..."
 APK_URL="https://dl-cdn.alpinelinux.org/alpine/edge/main/$APK_ARCH/apk-tools-static-$APK_VERSION.apk"
@@ -46,6 +46,15 @@ cat > "$VELLUM_ROOT/etc/apk/repositories" <<EOF
 https://packages.vellum.delivery
 EOF
 
+echo "Initializing local repository..."
+mkdir -p "$VELLUM_ROOT/local-repo/$APK_ARCH"
+(cd "$VELLUM_ROOT/local-repo/$APK_ARCH" && touch APKINDEX && tar -czf APKINDEX.tar.gz APKINDEX && rm APKINDEX)
+
+echo "Setting up /etc/apk bind mount..."
+rm -rf /etc/apk
+mkdir -p /etc/apk
+mount --bind "$VELLUM_ROOT/etc/apk" /etc/apk
+
 echo "Setting up /usr/lib overlay for apk database..."
 mkdir -p "$VELLUM_ROOT/lib-overlay/upper" "$VELLUM_ROOT/lib-overlay/work"
 if ! mountpoint -q /usr/lib 2>/dev/null; then
@@ -57,8 +66,6 @@ mkdir -p /lib/apk/db
 
 echo "Initializing apk database..."
 "$VELLUM_ROOT/bin/apk.static" \
-    --keys-dir "$VELLUM_ROOT/etc/apk/keys" \
-    --repositories-file "$VELLUM_ROOT/etc/apk/repositories" \
     --no-logfile \
     add --initdb
 
