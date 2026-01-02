@@ -17,17 +17,10 @@ on:
         default: false
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Lint all APKBUILD files
-        run: ./scripts/lint-packages.sh --apkbuild-lint
-
   setup:
     runs-on: ubuntu-latest
     outputs:
+      packages: ${{ steps.changed.outputs.packages }}
       noarch: ${{ steps.generate-matrix.outputs.noarch }}
       multiarch: ${{ steps.generate-matrix.outputs.multiarch }}
       has_packages: ${{ steps.generate-matrix.outputs.has_packages }}
@@ -128,6 +121,21 @@ jobs:
             echo "Multiarch packages: $multiarch_json"
           fi
 
+  lint:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lint APKBUILD files
+        run: |
+          PACKAGES="${{ needs.setup.outputs.packages }}"
+          if [ "$PACKAGES" == "all" ] || [ -z "$PACKAGES" ]; then
+            ./scripts/lint-packages.sh --apkbuild-lint
+          else
+            ./scripts/lint-packages.sh --apkbuild-lint $PACKAGES
+          fi
+
   build-noarch:
     needs: [lint, setup]
     if: needs.setup.outputs.has_packages == 'true' && fromJson(needs.setup.outputs.noarch)[0] != null
@@ -189,7 +197,10 @@ jobs:
 
   index:
     needs: [setup, build-noarch, build-multi-arch]
-    if: needs.build-noarch.result == 'success' || needs.build-multi-arch.result == 'success'
+    if: >-
+      always() &&
+      !failure() &&
+      (needs.build-noarch.result == 'success' || needs.build-multi-arch.result == 'success')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -246,9 +257,13 @@ jobs:
           path: dist/
 
   deploy:
-    needs: [setup, index]
+    needs: index
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    if: >-
+      always() &&
+      needs.index.result == 'success' &&
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     steps:
       - uses: actions/checkout@v4
 
