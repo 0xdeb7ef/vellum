@@ -9,6 +9,7 @@ arch="aarch64 armv7"
 license="GPL-3.0"
 depends="xovi-qt-resource-rebuilder"
 options="!check !fhs !strip !tracedeps"
+install="$pkgname.post-deinstall"
 
 source="
 $pkgname-$pkgver-aarch64.zip::https://github.com/asivery/rm-appload/releases/download/v$pkgver/appload-aarch64.zip
