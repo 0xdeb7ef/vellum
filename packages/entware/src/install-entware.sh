@@ -1,0 +1,1 @@
+/work/packages/entware/install-entware.sh

@@ -1,0 +1,24 @@
+#!/bin/sh
+/home/root/.local/share/entware/reenable-entware.sh
+
+if [ -x /opt/bin/opkg ]; then
+    /opt/bin/opkg update
+    /opt/bin/opkg upgrade opkg
+fi
+
+cat << 'EOF'
+
+======================================================
+                  Entware Upgraded
+======================================================
+
+  The opkg package manager has been updated.
+  Your installed Entware packages are preserved.
+
+  To update all Entware packages:
+
+    opkg update && opkg upgrade
+
+======================================================
+
+EOF

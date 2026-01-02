@@ -1,0 +1,29 @@
+#!/bin/sh
+set -e
+
+if [ "$(id -u)" -ne 0 ]; then
+    echo "Error: must be run as root" >&2
+    exit 1
+fi
+
+uses_overlay() {
+    [ -d /var/volatile/.etc-work ]
+}
+
+if grep -q ' / .*\brw\b' /proc/mounts; then
+    echo "Root filesystem is already read-write"
+else
+    echo "Remounting / as read-write..."
+    mount -o remount,rw /
+fi
+
+if ! uses_overlay; then
+    echo "System does not use overlay mounts"
+elif ! grep -q '^overlay.*/etc' /proc/mounts; then
+    echo "/etc overlay is already unmounted"
+else
+    echo "Unmounting /etc overlay..."
+    umount -R /etc
+fi
+
+echo "System ready for modifications"

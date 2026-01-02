@@ -1,0 +1,28 @@
+#!/bin/sh
+/home/root/.local/share/entware/install-entware.sh
+
+cat << 'EOF'
+
+======================================================
+                  Entware Installed
+======================================================
+
+  Add to your PATH (run once or add to ~/.bashrc):
+
+    export PATH=/opt/bin:/opt/sbin:$PATH
+
+  Package management:
+
+    opkg update              Update package list
+    opkg install <package>   Install a package
+    opkg list                List available packages
+    opkg list-installed      List installed packages
+    opkg upgrade             Upgrade all packages
+
+  After OS updates, run to restore Entware:
+
+    /home/root/.local/share/entware/reenable-entware.sh
+
+======================================================
+
+EOF
