@@ -7,7 +7,7 @@ pkgdesc="Screenshot extension for xovi framework"
 url="https://github.com/rmitchellscott/rm-shot"
 arch="aarch64 armv7"
 license="MIT"
-depends="xovi-framebuffer-spy xovi-message-broker"
+depends="framebuffer-spy xovi-message-broker"
 options="!check !fhs !strip !tracedeps"
 source="
 rm-shot-aarch64.so::https://github.com/rmitchellscott/rm-shot/releases/download/v$pkgver/rm-shot-aarch64.so

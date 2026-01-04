@@ -9,11 +9,9 @@ if [ "$VELLUM_PURGE" = "1" ]; then
 else
     # Preserve user-added content in extensions.d and exthome
     rm -f /home/root/xovi/xovi.so
-    rm -f /home/root/xovi/dlfile
     rm -f /home/root/xovi/start
     rm -f /home/root/xovi/stock
     rm -f /home/root/xovi/debug
-    rm -f /home/root/xovi/rebuild_hashtable
 
     # Remove empty directories, but preserve if user has untracked files
     rmdir /home/root/xovi/extensions.d 2>/dev/null || true

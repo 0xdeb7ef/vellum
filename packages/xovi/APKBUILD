@@ -1,115 +1,75 @@
 maintainer="Mitchell Scott <mitchell@scottlabs.io>"
 pkgname=xovi
-pkgver=16.0.0
+pkgver=0.3.1
 pkgrel=0
 _upstream_author="asivery"
-pkgdesc="Base xovi framework for reMarkable tablets"
-url="https://github.com/asivery/rm-xovi-extensions"
+pkgdesc="Core xovi framework for reMarkable tablets"
+url="https://github.com/asivery/xovi"
 arch="aarch64 armv7"
 license="GPL-3.0"
 depends="remarkable-os>=3.20 remarkable-os<3.25"
-install="$pkgname.post-install $pkgname.pre-deinstall"
+install="$pkgname.pre-deinstall"
 options="!check !fhs !strip !tracedeps"
 
-subpackages="
-	$pkgname-qt-resource-rebuilder:qt_resource_rebuilder
-	$pkgname-webserver-remote:webserver_remote
-	$pkgname-message-broker:message_broker
-	$pkgname-command-executor:command_executor
-	$pkgname-fileman:fileman
-	$pkgname-framebuffer-spy:framebuffer_spy
-	$pkgname-random-suspend:random_suspend
-"
-
-_release="v16-14112025"
-
 source="
-extensions-aarch64.zip::https://github.com/asivery/rm-xovi-extensions/releases/download/$_release/extensions-aarch64.zip
-extensions-armv7.zip::https://github.com/asivery/rm-xovi-extensions/releases/download/$_release/extensions-arm32-testing.zip
-LICENSE::https://raw.githubusercontent.com/asivery/rm-xovi-extensions/master/LICENSE
+xovi-aarch64.so::https://github.com/asivery/xovi/releases/download/v$pkgver/xovi-aarch64.so
+xovi-armv7.so::https://github.com/asivery/xovi/releases/download/v$pkgver/xovi-arm32.so
+LICENSE::https://raw.githubusercontent.com/asivery/xovi/master/LICENSE
 "
 
 sha512sums="
-2688a21c3f2e01f0b08fde3cb3a455907aa5f8ad9cd62599d0db21a5d533b7e60ad57a0755819879369c873966c25a53546fbf87d533150a44c2c6e0249fb532  extensions-aarch64.zip
-e2b0231ef9e00859c9d094af2150031664d6ed414db05b0c6d9d0291273acb013fdd054b9f920f8f8974bb2c5402c85726c22e3af7af963637d76cace38fcb8c  extensions-armv7.zip
+ee1cbd23016f72c8e7cac52d22fed3aafc5c58580ffde886838b5f76459ea44e66fd152f71db78b4a9336cd1d760e14f155f19c9d6f00b596cb5440e40ef9347  xovi-aarch64.so
+8d997e4a2306344daf47c9c7670cf52bdfbac933ff933db9b92b05bd84f574972a6346e48cbc64701938be07e832b233ba11fdb74590f981c297d5f88acd1163  xovi-armv7.so
 d361e5e8201481c6346ee6a886592c51265112be550d5224f1a7a6e116255c2f1ab8788df579d9b8372ed7bfd19bac4b6e70e00b472642966ab5b319b99a2686  LICENSE
 "
 
-prepare() {
-	default_prepare
-	cd "$srcdir"
-	case "$CARCH" in
-		aarch64) unzip -o extensions-aarch64.zip ;;
-		armv7|armhf) unzip -o extensions-armv7.zip ;;
-	esac
-}
-
 package() {
-	install -Dm755 "$srcdir/install-xovi-for-rm" \
-		"$pkgdir/home/root/.local/bin/install-xovi-for-rm"
 	mkdir -p "$pkgdir/home/root/xovi/extensions.d"
+	mkdir -p "$pkgdir/home/root/xovi/exthome"
+
+	case "$CARCH" in
+		aarch64) _xovi_so="xovi-aarch64.so" ;;
+		armv7|armhf) _xovi_so="xovi-armv7.so" ;;
+	esac
+
+	install -Dm755 "$srcdir/$_xovi_so" "$pkgdir/home/root/xovi/xovi.so"
+
+	cat > "$pkgdir/home/root/xovi/debug" <<-'EOF'
+	#!/bin/bash
+	systemctl stop xochitl
+	QML_DISABLE_DISK_CACHE=1 QML_XHR_ALLOW_FILE_READ=1 QML_XHR_ALLOW_FILE_WRITE=1 LD_PRELOAD=/home/root/xovi/xovi.so xochitl
+	EOF
+
+	cat > "$pkgdir/home/root/xovi/start" <<-'EOF'
+	#!/bin/bash
+	mkdir -p /etc/systemd/system/xochitl.service.d
+	mount -t tmpfs tmpfs /etc/systemd/system/xochitl.service.d
+	cat > /etc/systemd/system/xochitl.service.d/xovi.conf <<-END
+	[Service]
+	Environment="QML_DISABLE_DISK_CACHE=1"
+	Environment="QML_XHR_ALLOW_FILE_WRITE=1"
+	Environment="QML_XHR_ALLOW_FILE_READ=1"
+	Environment="LD_PRELOAD=/home/root/xovi/xovi.so"
+	END
+
+	systemctl daemon-reload
+	systemctl restart xochitl
+	EOF
+
+	cat > "$pkgdir/home/root/xovi/stock" <<-'EOF'
+	#!/bin/bash
+	rm -f /etc/systemd/system/xochitl.service.d/xovi.conf
+	systemctl daemon-reload
+	systemctl restart xochitl
+	EOF
+
+	chmod 755 "$pkgdir/home/root/xovi/debug"
+	chmod 755 "$pkgdir/home/root/xovi/start"
+	chmod 755 "$pkgdir/home/root/xovi/stock"
 
 	mkdir -p "$pkgdir/home/root/.vellum/licenses/$pkgname"
 	install -Dm644 "$srcdir/LICENSE" \
 		"$pkgdir/home/root/.vellum/licenses/$pkgname/LICENSE"
-	echo "https://github.com/asivery/rm-xovi-extensions/archive/refs/tags/$_release.tar.gz" > \
+	echo "https://github.com/asivery/xovi/archive/refs/tags/v$pkgver.tar.gz" > \
 		"$pkgdir/home/root/.vellum/licenses/$pkgname/SOURCES"
-}
-
-qt_resource_rebuilder() {
-	pkgdesc="Rebuilds QT resource databases on the fly to replace or add QML files, images, etc"
-	depends="xovi"
-	install="$subpkgname.post-install"
-
-	install -Dm755 "$srcdir/qt-resource-rebuilder.so" \
-		"$subpkgdir/home/root/xovi/extensions.d/qt-resource-rebuilder.so"
-	mkdir -p "$subpkgdir/home/root/xovi/exthome/qt-resource-rebuilder"
-}
-
-webserver_remote() {
-	pkgdesc="Exposes the USB webserver to all interfaces with connection confirmation dialog"
-	depends="xovi-qt-resource-rebuilder xovi-message-broker"
-
-	install -Dm755 "$srcdir/webserver-remote.so" \
-		"$subpkgdir/home/root/xovi/extensions.d/webserver-remote.so"
-}
-
-message_broker() {
-	pkgdesc="IPC messaging between xovi extensions"
-	depends="xovi"
-
-	install -Dm755 "$srcdir/xovi-message-broker.so" \
-		"$subpkgdir/home/root/xovi/extensions.d/xovi-message-broker.so"
-}
-
-command_executor() {
-	pkgdesc="Injects a QT module to execute shell commands from QML"
-	depends="xovi"
-
-	install -Dm755 "$srcdir/qt-command-executor.so" \
-		"$subpkgdir/home/root/xovi/extensions.d/qt-command-executor.so"
-}
-
-fileman() {
-	pkgdesc="Module for managing filesystem redirections"
-	depends="xovi"
-
-	install -Dm755 "$srcdir/fileman.so" \
-		"$subpkgdir/home/root/xovi/extensions.d/fileman.so"
-}
-
-framebuffer_spy() {
-	pkgdesc="Module for exposing the address of the system framebuffer"
-	depends="xovi"
-
-	install -Dm755 "$srcdir/framebuffer-spy.so" \
-		"$subpkgdir/home/root/xovi/extensions.d/framebuffer-spy.so"
-}
-
-random_suspend() {
-	pkgdesc="Randomize your reMarkable tablet's suspend screens"
-	depends="xovi-fileman"
-
-	install -Dm755 "$srcdir/random-suspend-screen.so" \
-		"$subpkgdir/home/root/xovi/extensions.d/random-suspend-screen.so"
 }

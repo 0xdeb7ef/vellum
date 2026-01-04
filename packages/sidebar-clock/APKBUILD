@@ -7,7 +7,7 @@ pkgdesc="Adds a live clock to the library sidebar; tap the entry to toggle secon
 url="https://github.com/NohamR/xovi-qmd-extensions"
 arch="noarch"
 license="MIT"
-depends="xovi-qt-resource-rebuilder remarkable-os>=3.23 remarkable-os<3.24"
+depends="qt-resource-rebuilder remarkable-os>=3.23 remarkable-os<3.24"
 source="
 clock.qmd::https://raw.githubusercontent.com/NohamR/xovi-qmd-extensions/main/3.23.0.64/clock.qmd
 LICENSE::https://raw.githubusercontent.com/NohamR/xovi-qmd-extensions/main/LICENSE

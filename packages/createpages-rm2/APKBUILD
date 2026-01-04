@@ -7,7 +7,7 @@ pkgdesc="Overrides new page creation to use reMarkable 2 dimensions."
 url="https://github.com/rmitchellscott/xovi-qmd-extensions"
 arch="noarch"
 license="MIT"
-depends="xovi-qt-resource-rebuilder remarkable-os>=3.24 remarkable-os<3.25 !createpages-paperpro"
+depends="qt-resource-rebuilder remarkable-os>=3.24 remarkable-os<3.25 !createpages-paperpro"
 source="
 createPagesRM2Size.qmd::https://raw.githubusercontent.com/rmitchellscott/xovi-qmd-extensions/main/3.24/createPagesRM2Size.qmd
 LICENSE::https://raw.githubusercontent.com/rmitchellscott/xovi-qmd-extensions/main/LICENSE

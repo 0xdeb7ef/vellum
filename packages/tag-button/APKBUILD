@@ -7,7 +7,7 @@ pkgdesc="Puts a Tag action next to other list controls to open the tag editor di
 url="https://github.com/NohamR/xovi-qmd-extensions"
 arch="noarch"
 license="MIT"
-depends="xovi-qt-resource-rebuilder remarkable-os>=3.23 remarkable-os<3.24"
+depends="qt-resource-rebuilder remarkable-os>=3.23 remarkable-os<3.24"
 source="
 tagButton.qmd::https://raw.githubusercontent.com/NohamR/xovi-qmd-extensions/main/3.23.0.64/tagButton.qmd
 LICENSE::https://raw.githubusercontent.com/NohamR/xovi-qmd-extensions/main/LICENSE

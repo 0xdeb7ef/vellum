@@ -7,7 +7,7 @@ pkgdesc="Restores a Favorite action in the document list header for faster pinni
 url="https://github.com/NohamR/xovi-qmd-extensions"
 arch="noarch"
 license="MIT"
-depends="xovi-qt-resource-rebuilder remarkable-os>=3.23 remarkable-os<3.24"
+depends="qt-resource-rebuilder remarkable-os>=3.23 remarkable-os<3.24"
 source="
 favoriteButton.qmd::https://raw.githubusercontent.com/NohamR/xovi-qmd-extensions/main/3.23.0.64/favoriteButton.qmd
 LICENSE::https://raw.githubusercontent.com/NohamR/xovi-qmd-extensions/main/LICENSE

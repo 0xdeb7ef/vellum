@@ -7,7 +7,7 @@ pkgdesc="Xovi extension for windowed and fullscreen apps on reMarkable tablets"
 url="https://github.com/asivery/rm-appload"
 arch="aarch64 armv7"
 license="GPL-3.0"
-depends="xovi-qt-resource-rebuilder"
+depends="qt-resource-rebuilder"
 options="!check !fhs !strip !tracedeps"
 install="$pkgname.post-deinstall"
 

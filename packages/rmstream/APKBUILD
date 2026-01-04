@@ -7,7 +7,7 @@ pkgdesc="Stream your reMarkable's screen to any device on the local network via 
 url="https://github.com/asivery/appload-rmstream"
 arch="aarch64 armv7"
 license="GPL-3.0"
-depends="appload xovi-framebuffer-spy"
+depends="appload framebuffer-spy"
 install="$pkgname.post-install $pkgname.post-deinstall"
 options="!check !fhs !strip !tracedeps"
 
