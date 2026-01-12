@@ -1,27 +1,27 @@
 maintainer="Mitchell Scott <mitchell@scottlabs.io>"
-pkgname=hide-document-close
+pkgname=hide-show-toolbar
 pkgver=1.0.4
 pkgrel=0
 _upstream_author="ingatellent"
 _category="ui"
-pkgdesc="Hides close button, use slide-down from top instead."
+pkgdesc="Hides the show toolbar button (use with gestureToolbarShow)."
 url="https://github.com/ingatellent/xovi-qmd-extensions"
 arch="noarch"
 license="GPL-2.0"
 depends="qt-resource-rebuilder remarkable-os>=3.24 remarkable-os<3.25"
 source="
-hideDocumentClose.qmd::https://raw.githubusercontent.com/ingatellent/xovi-qmd-extensions/main/3.24/hideDocumentClose.qmd
+hideShowToolbar.qmd::https://raw.githubusercontent.com/ingatellent/xovi-qmd-extensions/main/3.24/hideShowToolbar.qmd
 LICENSE::https://raw.githubusercontent.com/ingatellent/xovi-qmd-extensions/main/LICENSE.md
 "
 options="!check !fhs"
 sha512sums="
-5224284d06cce41c0eb78d278ae8a46d44029f47422c1d5218d2eb1716f096fb63788e5fc2d1392b6afcdc229ce27fcc82a6048a36e6c66ca3456f9e4d09e386  hideDocumentClose.qmd
+f1a78266931d8c23964c1bc7cdf18aa415c42baeae2dd8aae72ba6603c976d1363902f9888ded687f2078768e958f421c948c87584fa61f47b2726bfc9dc3a74  hideShowToolbar.qmd
 aee80b1f9f7f4a8a00dcf6e6ce6c41988dcaedc4de19d9d04460cbfb05d99829ffe8f9d038468eabbfba4d65b38e8dbef5ecf5eb8a1b891d9839cda6c48ee957  LICENSE
 "
 
 package() {
-	install -Dm644 "$srcdir/hideDocumentClose.qmd" \
-		"$pkgdir/home/root/xovi/exthome/qt-resource-rebuilder/hideDocumentClose.qmd"
+	install -Dm644 "$srcdir/hideShowToolbar.qmd" \
+		"$pkgdir/home/root/xovi/exthome/qt-resource-rebuilder/hideShowToolbar.qmd"
 
 	mkdir -p "$pkgdir/home/root/.vellum/licenses/$pkgname"
 	install -Dm644 "$srcdir/LICENSE" \

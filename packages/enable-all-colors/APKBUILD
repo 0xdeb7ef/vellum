@@ -1,27 +1,27 @@
 maintainer="Mitchell Scott <mitchell@scottlabs.io>"
-pkgname=hide-document-close
-pkgver=1.0.4
+pkgname=enable-all-colors
+pkgver=1.0.2
 pkgrel=0
 _upstream_author="ingatellent"
 _category="ui"
-pkgdesc="Hides close button, use slide-down from top instead."
+pkgdesc="Enables full color selection on rM1 and rM2."
 url="https://github.com/ingatellent/xovi-qmd-extensions"
 arch="noarch"
 license="GPL-2.0"
-depends="qt-resource-rebuilder remarkable-os>=3.24 remarkable-os<3.25"
+depends="qt-resource-rebuilder !rmpp !rmppm remarkable-os>=3.24 remarkable-os<3.25"
 source="
-hideDocumentClose.qmd::https://raw.githubusercontent.com/ingatellent/xovi-qmd-extensions/main/3.24/hideDocumentClose.qmd
+enableAllColors.qmd::https://raw.githubusercontent.com/ingatellent/xovi-qmd-extensions/main/3.24/enableAllColors.qmd
 LICENSE::https://raw.githubusercontent.com/ingatellent/xovi-qmd-extensions/main/LICENSE.md
 "
 options="!check !fhs"
 sha512sums="
-5224284d06cce41c0eb78d278ae8a46d44029f47422c1d5218d2eb1716f096fb63788e5fc2d1392b6afcdc229ce27fcc82a6048a36e6c66ca3456f9e4d09e386  hideDocumentClose.qmd
+092bd464dc95996accdf04395dced7fbcf9e95798c00b2ac3ac7eca9428a2ba1dd2b2a5bf28212c39db9baec95e36e6cbbdbf7bd96e867d99542395681a510ed  enableAllColors.qmd
 aee80b1f9f7f4a8a00dcf6e6ce6c41988dcaedc4de19d9d04460cbfb05d99829ffe8f9d038468eabbfba4d65b38e8dbef5ecf5eb8a1b891d9839cda6c48ee957  LICENSE
 "
 
 package() {
-	install -Dm644 "$srcdir/hideDocumentClose.qmd" \
-		"$pkgdir/home/root/xovi/exthome/qt-resource-rebuilder/hideDocumentClose.qmd"
+	install -Dm644 "$srcdir/enableAllColors.qmd" \
+		"$pkgdir/home/root/xovi/exthome/qt-resource-rebuilder/enableAllColors.qmd"
 
 	mkdir -p "$pkgdir/home/root/.vellum/licenses/$pkgname"
 	install -Dm644 "$srcdir/LICENSE" \
