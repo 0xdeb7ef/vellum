@@ -344,17 +344,22 @@ jobs:
         if: steps.changed.outputs.packages != ''
         run: |
           mkdir -p dist/aarch64 dist/armv7 dist/noarch
+          failed=""
           for pkgname in ${{ steps.changed.outputs.packages }}; do
             pkg="packages/$pkgname/APKBUILD"
             if [ -f "$pkg" ]; then
               if grep -q '^arch="noarch"' "$pkg"; then
-                ./scripts/build-package.sh "$pkgname" || echo "Failed: $pkgname"
+                ./scripts/build-package.sh "$pkgname" || failed="$failed $pkgname"
               else
-                ./scripts/build-package.sh "$pkgname" aarch64 || echo "Failed: $pkgname (aarch64)"
-                ./scripts/build-package.sh "$pkgname" armv7 || echo "Failed: $pkgname (armv7)"
+                ./scripts/build-package.sh "$pkgname" aarch64 || failed="$failed $pkgname(aarch64)"
+                ./scripts/build-package.sh "$pkgname" armv7 || failed="$failed $pkgname(armv7)"
               fi
             fi
           done
+          if [ -n "$failed" ]; then
+            echo "::error::Build failed for:$failed"
+            exit 1
+          fi
 
       - name: Configure AWS credentials
         if: steps.changed.outputs.packages != ''
