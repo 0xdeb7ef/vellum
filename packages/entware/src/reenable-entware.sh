@@ -1,1 +1,0 @@
-/work/packages/entware/reenable-entware.sh

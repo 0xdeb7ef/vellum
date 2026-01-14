@@ -1,15 +1,22 @@
 #!/bin/sh
 /home/root/.local/share/entware/install-entware.sh
 
+BASHRC="/home/root/.bashrc"
+PATH_LINE='export PATH=/opt/bin:/opt/sbin:$PATH'
+
+if [ -f "$BASHRC" ] && grep -qF "/opt/bin" "$BASHRC"; then
+    echo "Entware PATH already configured in $BASHRC"
+else
+    echo "" >> "$BASHRC"
+    echo "$PATH_LINE" >> "$BASHRC"
+    echo "Added Entware to PATH in $BASHRC"
+fi
+
 cat << 'EOF'
 
 ======================================================
                   Entware Installed
 ======================================================
-
-  Add to your PATH (run once or add to ~/.bashrc):
-
-    export PATH=/opt/bin:/opt/sbin:$PATH
 
   Package management:
 
