@@ -1,6 +1,6 @@
 maintainer="Mitchell Scott <mitchell@scottlabs.io>"
 pkgname=hide-page-labels-fullscreen
-pkgver=1.0.3
+pkgver=1.0.4
 pkgrel=0
 _upstream_author="ingatellent"
 _category="ui"
@@ -14,10 +14,6 @@ hidePageLabelsInFullscreen.qmd::https://raw.githubusercontent.com/ingatellent/xo
 LICENSE::https://raw.githubusercontent.com/ingatellent/xovi-qmd-extensions/main/LICENSE.md
 "
 options="!check !fhs"
-sha512sums="
-156f87c2ca4c849b07335c055e89e1785831a4c5899c0b5f7c2275aa9b3a9541ea44bad07fc59c743ee3357833fdedc35946926f8cdefcd862cf827d77bb35ba  hidePageLabelsInFullscreen.qmd
-aee80b1f9f7f4a8a00dcf6e6ce6c41988dcaedc4de19d9d04460cbfb05d99829ffe8f9d038468eabbfba4d65b38e8dbef5ecf5eb8a1b891d9839cda6c48ee957  LICENSE
-"
 
 package() {
 	install -Dm644 "$srcdir/hidePageLabelsInFullscreen.qmd" \
@@ -29,3 +25,7 @@ package() {
 	echo "https://github.com/ingatellent/xovi-qmd-extensions" > \
 		"$pkgdir/home/root/.vellum/licenses/$pkgname/SOURCES"
 }
+sha512sums="
+7fc6ffbb05a1578b23ea97ff1c928e3c50e1804ed13acfd52b33fb7ea1242c9a23b8c67365860c4224c8bc30208b54f934d337d7afa9a434dd97da6308531844  hidePageLabelsInFullscreen.qmd
+aee80b1f9f7f4a8a00dcf6e6ce6c41988dcaedc4de19d9d04460cbfb05d99829ffe8f9d038468eabbfba4d65b38e8dbef5ecf5eb8a1b891d9839cda6c48ee957  LICENSE
+"
