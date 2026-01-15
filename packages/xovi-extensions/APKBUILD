@@ -1,7 +1,7 @@
 maintainer="Mitchell Scott <mitchell@scottlabs.io>"
 pkgname=xovi-extensions
 pkgver=17.0.0
-pkgrel=0
+pkgrel=1
 _upstream_author="asivery"
 _category="framework"
 pkgdesc="Extensions for xovi framework"
@@ -48,7 +48,7 @@ package() {
 
 qt_resource_rebuilder() {
 	pkgdesc="Rebuilds QT resource databases on the fly to replace or add QML files"
-	depends="xovi"
+	depends="$pkgname"
 
 	install -Dm755 "$srcdir/qt-resource-rebuilder.so" \
 		"$subpkgdir/home/root/xovi/extensions.d/qt-resource-rebuilder.so"
@@ -98,7 +98,7 @@ qt_resource_rebuilder() {
 
 qt_command_executor() {
 	pkgdesc="Injects a QT module to execute shell commands from QML"
-	depends="xovi"
+	depends="$pkgname"
 
 	install -Dm755 "$srcdir/qt-command-executor.so" \
 		"$subpkgdir/home/root/xovi/extensions.d/qt-command-executor.so"
@@ -106,7 +106,7 @@ qt_command_executor() {
 
 message_broker() {
 	pkgdesc="IPC messaging between xovi extensions"
-	depends="xovi"
+	depends="$pkgname"
 
 	install -Dm755 "$srcdir/xovi-message-broker.so" \
 		"$subpkgdir/home/root/xovi/extensions.d/xovi-message-broker.so"
@@ -114,7 +114,7 @@ message_broker() {
 
 framebuffer_spy() {
 	pkgdesc="Module for exposing the address of the system framebuffer"
-	depends="xovi"
+	depends="$pkgname"
 
 	install -Dm755 "$srcdir/framebuffer-spy.so" \
 		"$subpkgdir/home/root/xovi/extensions.d/framebuffer-spy.so"
