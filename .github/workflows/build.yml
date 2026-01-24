@@ -256,6 +256,28 @@ jobs:
             aws s3 cp s3://packages.vellum.delivery/$arch/ s3-packages/$arch/ \
               --recursive --exclude "APKINDEX.tar.gz" || true
 
+            # Remove old pkgrels (keep only highest pkgrel per name-version)
+            if ls s3-packages/$arch/*.apk >/dev/null 2>&1; then
+              declare -A latest
+              for f in s3-packages/$arch/*.apk; do
+                b=$(basename "$f")
+                [[ $b =~ ^(.+-[0-9]+\.[0-9]+\.[0-9]+)-r([0-9]+)\.apk$ ]] || continue
+                k="${BASH_REMATCH[1]}"; r="${BASH_REMATCH[2]}"
+                [[ -z "${latest[$k]}" || "$r" -gt "${latest[$k]}" ]] && latest[$k]="$r"
+              done
+              for f in s3-packages/$arch/*.apk; do
+                b=$(basename "$f")
+                [[ $b =~ ^(.+-[0-9]+\.[0-9]+\.[0-9]+)-r([0-9]+)\.apk$ ]] || continue
+                k="${BASH_REMATCH[1]}"; r="${BASH_REMATCH[2]}"
+                if [[ "$r" -lt "${latest[$k]}" ]]; then
+                  echo "Removing old pkgrel: $b"
+                  rm "$f"
+                  aws s3 rm "s3://packages.vellum.delivery/$arch/$b"
+                fi
+              done
+              unset latest
+            fi
+
             if ls s3-packages/$arch/*.apk >/dev/null 2>&1; then
               echo "Regenerating APKINDEX for $arch with $(ls s3-packages/$arch/*.apk | wc -l) packages..."
               docker run --rm \
