@@ -121,6 +121,7 @@ framebuffer_spy() {
 }
 
 webserver_remote() {
+	_category="utilities"
 	pkgdesc="Exposes the USB webserver to all interfaces with connection confirmation dialog"
 	depends="qt-resource-rebuilder xovi-message-broker"
 

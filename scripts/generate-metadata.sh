@@ -66,9 +66,25 @@ for apkbuild in packages/*/APKBUILD; do
     subpackages=$(awk '/^subpackages="/{flag=1; sub(/^subpackages="/, ""); if (/"$/) {sub(/"$/, ""); print; next}} flag{if (/"$/) {sub(/"$/, ""); print; flag=0; next} print}' "$apkbuild" | tr '\n\t' '  ')
 
     for subpkg in $subpackages; do
-        # Strip function suffix like :split_func
         subpkg_name="${subpkg%%:*}"
-        [ -n "$subpkg_name" ] && echo "$subpkg_name	$_cat	$_auth	$_maint	$_modsys" >> "$WORKDIR/apkbuild-meta.tsv"
+        [ -z "$subpkg_name" ] && continue
+
+        # Get function name (after : or derive from package name)
+        if echo "$subpkg" | grep -q ':'; then
+            func_name="${subpkg##*:}"
+        else
+            func_name=$(echo "$subpkg_name" | tr '-' '_')
+        fi
+
+        # Extract _category from subpackage function body, fall back to parent
+        subpkg_cat=$(awk -v fn="$func_name" '
+            $0 ~ "^"fn"\\(\\)" { in_func=1; next }
+            in_func && /^}/ { exit }
+            in_func && /_category=/ { gsub(/.*_category=["'"'"']?|["'"'"'].*/, ""); print; exit }
+        ' "$apkbuild")
+        subpkg_cat="${subpkg_cat:-$_cat}"
+
+        echo "$subpkg_name	$subpkg_cat	$_auth	$_maint	$_modsys" >> "$WORKDIR/apkbuild-meta.tsv"
     done
 done
 
